@@ -36,17 +36,14 @@ class R4SR4SDB_model:
     
     def find_location(self,city,road,building_nr):
         address = f'{city}, {road} {building_nr}'
-        print(address)
         try:
             location = self.API.geocode(address)
             point_wkt = f"POINT({location.longitude} {location.latitude})"
-            print(point_wkt)
             return point_wkt
         except:
             try:
                 location = self.API.geocode(city)
                 point_wkt = f"POINT({location.longitude} {location.latitude})"
-                print(point_wkt)
                 return point_wkt
             except:
                 return None
@@ -110,6 +107,23 @@ class R4SR4SDB_model:
         res = self.curr.execute("""SELECT id, name, city,
                                 road, building_nr,X(geo),Y(geo),headqoters_id 
                                 FROM rental""").fetchall()
+        self.rental_list = {}
+        for r in res:
+            headquarters = self.curr.execute("""SELECT X(geo),Y(geo)
+                                FROM headquarters WHERE id = ?""",(r[7],)).fetchone()
+            distance = self.curr.execute("""SELECT ST_Distance(
+                                MakePoint(?, ?, 4326),
+                                MakePoint(?, ?, 4326),
+                                1
+                                ) AS distance_m;""",(headquarters[0],headquarters[1],r[5],r[6])).fetchone()[0]
+            self.rental_list[f'{r[1]} #{r[0]}'] = list(r[1:8])
+            self.rental_list[f'{r[1]} #{r[0]}'].append(round(distance/1000,2))
+        return self.rental_list
+    
+    def get_rental_list_based_on_headquater(self,id_key:int):
+        res = self.curr.execute("""SELECT id, name, city,
+                                road, building_nr,X(geo),Y(geo),headqoters_id 
+                                FROM rental WHERE headqoters_id = ?""",(id_key,)).fetchall()
         self.rental_list = {}
         for r in res:
             headquarters = self.curr.execute("""SELECT X(geo),Y(geo)
@@ -188,11 +202,18 @@ if __name__ == '__main__':
     # print(R4S.get_headquaters_list())
     # R4S.remove_headquater('Rent 4 Sport #3')
     # print(R4S.get_headquaters_list())
+    # print(R4S.get_rental_list())
+    # R4S.add_rental_list(['Rent 4 Sport','Łódź', 'Piotrkowska', '16', 1])
+    # print(R4S.get_rental_list())
+    # R4S.update_rental('Rent 4 Sport #2',['Rent 4 Sport','Warszawa', 'Okopowa', '1', 1])
+    # print(R4S.get_rental_list())
+    # R4S.remove_rental('Rent 4 Sport #2')
+    # print(R4S.get_rental_list())
+    R4S.add_headquaters_list(['Decathlon','Łódź', 'Piotrkowska', '16'])
+    R4S.add_rental_list(['Decathlon','Warszawa', 'Aleja Krakowska', '81', 2])
+    print(R4S.get_headquaters_list())
     print(R4S.get_rental_list())
-    R4S.add_rental_list(['Rent 4 Sport','Łódź', 'Piotrkowska', '16', 1])
-    print(R4S.get_rental_list())
-    R4S.update_rental('Rent 4 Sport #2',['Rent 4 Sport','Warszawa', 'Okopowa', '1', 1])
-    print(R4S.get_rental_list())
-    R4S.remove_rental('Rent 4 Sport #2')
-    print(R4S.get_rental_list())
+    print(R4S.get_rental_list_based_on_headquater(2))
+    R4S.remove_headquater('Decathlon #2')
+    R4S.remove_rental('Decathlon #2')
     R4S.conn.close()

@@ -18,7 +18,15 @@ conn.enable_load_extension(True)
 conn.load_extension(r"R4SM_lib/modules/mod_spatialite.dll")
 curr = conn.cursor()
 curr.execute("SELECT InitSpatialMetaData(1)")
-curr.execute("CREATE TABLE IF NOT EXISTS headquarters(id INTEGER PRIMARY KEY, name text, city text, road text, building_nr text)")
+# Headquarters
+curr.execute("""
+             CREATE TABLE IF NOT EXISTS headquarters(
+             id INTEGER PRIMARY KEY,
+             name text,
+             city text,
+             road text,
+             building_nr text)
+             """)
 curr.execute("""
     SELECT AddGeometryColumn(
         'headquarters',
@@ -46,5 +54,44 @@ VALUES (
     ST_GeomFromText(?, 4326)
 )
 """,(name,city,road,building_nr,point_wkt))
+# Rental
+curr.execute("""
+             CREATE TABLE IF NOT EXISTS rental(
+             id INTEGER PRIMARY KEY,
+             name text,
+             city text,
+             road text,
+             building_nr text,
+             headqoters_id INTEGER)
+             """)
+curr.execute("""
+    SELECT AddGeometryColumn(
+        'rental',
+        'geo',
+        4326,
+        'POINT',
+        'XY'
+    )
+""")
+API = Nominatim(user_agent='App')
+name = 'Rent 4 Sport'
+city = 'Warszawa'
+road = 'Adama Mickiewicza'
+building_nr = '10'
+headqoters_id = 1
+address = f'{city}, {road} {building_nr}'
+location = API.geocode(address)
+point_wkt = f"POINT({location.longitude} {location.latitude})"
+curr.execute("""
+INSERT INTO rental(name, city, road, building_nr,headqoters_id, geo)
+VALUES (
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ST_GeomFromText(?, 4326)
+)
+""",(name,city,road,building_nr,headqoters_id,point_wkt))
 conn.commit()
 conn.close()

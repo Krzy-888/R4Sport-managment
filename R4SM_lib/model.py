@@ -25,6 +25,7 @@ class user_model:
         return [self.mail, self.familyname, self.firstname]
 
 class R4SR4SDB_model:
+    # Init
     def __init__(self,db:str = 'R4SM_lib/data/R4SDB.sqlite'):
         self.conn = sqlite3.connect(db)
         self.conn.enable_load_extension(True)
@@ -32,25 +33,33 @@ class R4SR4SDB_model:
         self.curr = self.conn.cursor()
         self.curr.execute("SELECT InitSpatialMetaData(1)")
         self.API = Nominatim(user_agent='App')
-    def get_headquaters_list(self):
-        res = self.curr.execute('SELECT id, name, city, road, building_nr,X(geo),Y(geo) FROM headquarters')
-        self.headquaters_list = {}
-        for r in res:
-            self.headquaters_list[f'{r[1]} #{r[0]}'] = r[1:7]
-        return self.headquaters_list
+    
     def find_location(self,city,road,building_nr):
         address = f'{city}, {road} {building_nr}'
+        print(address)
         try:
             location = self.API.geocode(address)
             point_wkt = f"POINT({location.longitude} {location.latitude})"
+            print(point_wkt)
             return point_wkt
         except:
             try:
                 location = self.API.geocode(city)
                 point_wkt = f"POINT({location.longitude} {location.latitude})"
+                print(point_wkt)
                 return point_wkt
             except:
                 return None
+    # Headquaters
+    def get_headquaters_list(self):
+        res = self.curr.execute("""SELECT id, name, city,
+                                road, building_nr,X(geo),Y(geo) 
+                                FROM headquarters""").fetchall()
+        self.headquaters_list = {}
+        for r in res:
+            self.headquaters_list[f'{r[1]} #{r[0]}'] = list(r[1:7])
+        return self.headquaters_list
+    
     
     def add_headquaters_list(self,input_data:list[str]):
         name,city,road,building_nr = input_data
@@ -77,6 +86,7 @@ class R4SR4SDB_model:
         WHERE id = ?
         """, (id,))
         self.conn.commit()
+    
     def update_headquater(self, id_key:str,input_data:list[str]):
         id = id_key.split('#')[-1]
         name,city,road,building_nr = input_data
@@ -94,23 +104,95 @@ class R4SR4SDB_model:
             self.conn.commit()
         else:
             raise ValueError(f'Invalid address')
+    
+    # Rental
+    def get_rental_list(self):
+        res = self.curr.execute("""SELECT id, name, city,
+                                road, building_nr,X(geo),Y(geo),headqoters_id 
+                                FROM rental""").fetchall()
+        self.rental_list = {}
+        for r in res:
+            headquarters = self.curr.execute("""SELECT X(geo),Y(geo)
+                                FROM headquarters WHERE id = ?""",(r[7],)).fetchone()
+            distance = self.curr.execute("""SELECT ST_Distance(
+                                MakePoint(?, ?, 4326),
+                                MakePoint(?, ?, 4326),
+                                1
+                                ) AS distance_m;""",(headquarters[0],headquarters[1],r[5],r[6])).fetchone()[0]
+            self.rental_list[f'{r[1]} #{r[0]}'] = list(r[1:8])
+            self.rental_list[f'{r[1]} #{r[0]}'].append(round(distance/1000,2))
+        return self.rental_list
+    
+    def add_rental_list(self,input_data:list):
+        name,city,road,building_nr,headqoters_id = input_data
+        point_wkt = self.find_location(city,road,building_nr)
+        if point_wkt:
+            self.curr.execute("""
+            INSERT INTO rental(name, city, road, building_nr, headqoters_id, geo)
+            VALUES (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ST_GeomFromText(?, 4326)
+            )
+            """,(name,city,road,building_nr,headqoters_id,point_wkt))
+            self.conn.commit()
+        else:
+            raise ValueError(f'Invalid address')
+        
+    def remove_rental(self, id_key:str):
+        id = id_key.split('#')[-1]
+        self.curr.execute("""
+        DELETE FROM rental
+        WHERE id = ?
+        """, (id,))
+        self.conn.commit()
 
+    def update_rental(self, id_key:str,input_data:list):
+        id = id_key.split('#')[-1]
+        name,city,road,building_nr,headqoters_id = input_data
+        point_wkt = self.find_location(city,road,building_nr)
+        if point_wkt:
+            self.curr.execute("""
+        UPDATE rental
+        SET name = ?,
+            city = ?,
+            road = ?,
+            building_nr = ?,
+            headqoters_id = ?,
+            geo = ST_GeomFromText(?, 4326)
+        WHERE id = ?
+    """, (name, city, road, building_nr, headqoters_id, point_wkt, id))
+            self.conn.commit()
+        else:
+            raise ValueError(f'Invalid address')
 
 # TEST
-# user = user_model(['TestAdmin@test.com','Pass1234!'])
-# print(user.write_user_data())
-# user = user_model(['TestAdmin','Pass1234!'])
-# user = user_model(['TestAdmin@test.com','Pass1234'])
-R4S = R4SR4SDB_model()
-print(R4S.get_headquaters_list())
-R4S.add_headquaters_list(['Rent 4 Sport','Łódź', 'Piotrkowska', '16'])
-R4S.add_headquaters_list(['Rent 4 Sport','Łódź', '', ''])
-print(R4S.get_headquaters_list())
-# R4S.remove_headquater('Rent 4 Sport #4')
-R4S.remove_headquater('Rent 4 Sport #2')
-# R4S.remove_headquater('Rent 4 Sport #3')
-print(R4S.get_headquaters_list())
-R4S.update_headquater('Rent 4 Sport #3',['Rent 4 Sport','Kraków', '', ''])
-print(R4S.get_headquaters_list())
-R4S.remove_headquater('Rent 4 Sport #3')
-print(R4S.get_headquaters_list())
+if __name__ == '__main__':
+    # user = user_model(['TestAdmin@test.com','Pass1234!'])
+    # print(user.write_user_data())
+    # user = user_model(['TestAdmin','Pass1234!'])
+    # user = user_model(['TestAdmin@test.com','Pass1234'])
+    R4S = R4SR4SDB_model()
+    # print(R4S.get_headquaters_list())
+    # R4S.add_headquaters_list(['Rent 4 Sport','Łódź', 'Piotrkowska', '16'])
+    # R4S.add_headquaters_list(['Rent 4 Sport','Łódź', '', ''])
+    # print(R4S.get_headquaters_list())
+    # # R4S.remove_headquater('Rent 4 Sport #4')
+    # R4S.remove_headquater('Rent 4 Sport #2')
+    # # R4S.remove_headquater('Rent 4 Sport #3')
+    # print(R4S.get_headquaters_list())
+    # R4S.update_headquater('Rent 4 Sport #3',['Rent 4 Sport','Kraków', '', ''])
+    # print(R4S.get_headquaters_list())
+    # R4S.remove_headquater('Rent 4 Sport #3')
+    # print(R4S.get_headquaters_list())
+    print(R4S.get_rental_list())
+    R4S.add_rental_list(['Rent 4 Sport','Łódź', 'Piotrkowska', '16', 1])
+    print(R4S.get_rental_list())
+    R4S.update_rental('Rent 4 Sport #2',['Rent 4 Sport','Warszawa', 'Okopowa', '1', 1])
+    print(R4S.get_rental_list())
+    R4S.remove_rental('Rent 4 Sport #2')
+    print(R4S.get_rental_list())
+    R4S.conn.close()

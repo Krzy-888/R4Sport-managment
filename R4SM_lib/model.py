@@ -57,7 +57,17 @@ class R4SR4SDB_model:
             self.headquaters_list[f'{r[1]} #{r[0]}'] = list(r[1:7])
         return self.headquaters_list
     
-    
+    def get_filtred_headquaters_list(self,filter:str,value):
+        res = self.curr.execute(f"""SELECT id, name, city,
+                                road, building_nr,X(geo),Y(geo) 
+                                FROM headquarters
+                                WHERE {filter} LIKE ?""",(value,)).fetchall()
+        self.headquaters_list = {}
+        for r in res:
+            self.headquaters_list[f'{r[1]} #{r[0]}'] = list(r[1:7])
+        return self.headquaters_list
+
+
     def add_headquaters_list(self,input_data:list[str]):
         name,city,road,building_nr = input_data
         point_wkt = self.find_location(city,road,building_nr)
@@ -120,10 +130,10 @@ class R4SR4SDB_model:
             self.rental_list[f'{r[1]} #{r[0]}'].append(round(distance/1000,2))
         return self.rental_list
     
-    def get_rental_list_based_on_headquater(self,id_key:int):
-        res = self.curr.execute("""SELECT id, name, city,
+    def get_filtred_rental_list(self,filter:str,value):
+        res = self.curr.execute(f"""SELECT id, name, city,
                                 road, building_nr,X(geo),Y(geo),headqoters_id 
-                                FROM rental WHERE headqoters_id = ?""",(id_key,)).fetchall()
+                                FROM rental WHERE {filter} LIKE ?""",(value,)).fetchall()
         self.rental_list = {}
         for r in res:
             headquarters = self.curr.execute("""SELECT X(geo),Y(geo)
@@ -182,7 +192,95 @@ class R4SR4SDB_model:
             self.conn.commit()
         else:
             raise ValueError(f'Invalid address')
+        
+    # Employee
+    def get_employee_list(self):
+        res = self.curr.execute("""SELECT id, firstname, familyname, city,
+                                road, building_nr,X(geo),Y(geo),headqoters_id, rental_id 
+                                FROM employee""").fetchall()
+        self.employee_list = {}
+        for r in res:
+            rental = self.curr.execute("""SELECT X(geo),Y(geo)
+                                FROM rental WHERE id = ?""",(r[8],)).fetchone()
+            distance = self.curr.execute("""SELECT ST_Distance(
+                                MakePoint(?, ?, 4326),
+                                MakePoint(?, ?, 4326),
+                                1
+                                ) AS distance_m;""",(rental[0],rental[1],r[6],r[7])).fetchone()[0]
+            self.employee_list[f'{r[1]} {r[2]} #{r[0]}'] = list(r[1:8])
+            self.employee_list[f'{r[1]} {r[2]} #{r[0]}'].append(round(distance/1000,2))
+        return self.employee_list
+    
+    def get_filtred_employee_list(self, filter:str,value):
+        res = self.curr.execute(f"""SELECT id, firstname, familyname, city,
+                                road, building_nr,X(geo),Y(geo),headqoters_id, rental_id 
+                                FROM employee WHERE {filter} LIKE ?""",(value,)).fetchall()
+        self.rental_list = {}
+        for r in res:
+            rental = self.curr.execute("""SELECT X(geo),Y(geo)
+                                FROM rental WHERE id = ?""",(r[8],)).fetchone()
+            distance = self.curr.execute("""SELECT ST_Distance(
+                                MakePoint(?, ?, 4326),
+                                MakePoint(?, ?, 4326),
+                                1
+                                ) AS distance_m;""",(rental[0],rental[1],r[6],r[7])).fetchone()[0]
+            self.employee_list[f'{r[1]} {r[2]} #{r[0]}'] = list(r[1:8])
+            self.employee_list[f'{r[1]} {r[2]} #{r[0]}'].append(round(distance/1000,2))
+        return self.employee_list
 
+    def add_employee_list(self,input_data:list):
+        firstname, familyname,city,road,building_nr,rental_id = input_data
+        headqoters_id = self.curr.execute(""" SELECT headqoters_id
+                                FROM rental WHERE id = ?""",(rental_id,)).fetchone()[0]
+        point_wkt = self.find_location(city,road,building_nr)
+        if point_wkt:
+            self.curr.execute("""
+            INSERT INTO employee(firstname, familyname, city, road, building_nr, headqoters_id, rental_id, geo)
+            VALUES (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ST_GeomFromText(?, 4326)
+            )
+            """,(firstname, familyname,city,road,building_nr,headqoters_id,rental_id ,point_wkt))
+            self.conn.commit()
+        else:
+            raise ValueError(f'Invalid address')
+        
+    def remove_employee(self, id_key:str):
+        id = id_key.split('#')[-1]
+        self.curr.execute("""
+        DELETE FROM employee
+        WHERE id = ?
+        """, (id,))
+        self.conn.commit()
+
+    def update_employee(self, id_key:str,input_data:list):
+        id = id_key.split('#')[-1]
+        firstname, familyname,city,road,building_nr,rental_id = input_data
+        point_wkt = self.find_location(city,road,building_nr)
+        headqoters_id = self.curr.execute(""" SELECT headqoters_id
+                                FROM rental WHERE id = ?""",(rental_id,)).fetchone()[0]
+        if point_wkt:
+            self.curr.execute("""
+        UPDATE employee
+        SET firstname = ?,
+            familyname = ?,
+            city = ?,
+            road = ?,
+            building_nr = ?,
+            rental_id = ?,
+            headqoters_id = ?,
+            geo = ST_GeomFromText(?, 4326)
+        WHERE id = ?
+    """, (firstname, familyname, city, road, building_nr, headqoters_id,rental_id, point_wkt, id))
+            self.conn.commit()
+        else:
+            raise ValueError(f'Invalid address')
 # TEST
 if __name__ == '__main__':
     # user = user_model(['TestAdmin@test.com','Pass1234!'])
@@ -209,11 +307,18 @@ if __name__ == '__main__':
     # print(R4S.get_rental_list())
     # R4S.remove_rental('Rent 4 Sport #2')
     # print(R4S.get_rental_list())
-    R4S.add_headquaters_list(['Decathlon','Łódź', 'Piotrkowska', '16'])
-    R4S.add_rental_list(['Decathlon','Warszawa', 'Aleja Krakowska', '81', 2])
-    print(R4S.get_headquaters_list())
-    print(R4S.get_rental_list())
-    print(R4S.get_rental_list_based_on_headquater(2))
-    R4S.remove_headquater('Decathlon #2')
-    R4S.remove_rental('Decathlon #2')
+    # R4S.add_headquaters_list(['Decathlon','Łódź', 'Piotrkowska', '16'])
+    # R4S.add_rental_list(['Decathlon','Warszawa', 'Aleja Krakowska', '81', 2])
+    # print(R4S.get_headquaters_list())
+    # print(R4S.get_rental_list())
+    # print(R4S.get_rental_list_based_on_headquater(2))
+    # R4S.remove_headquater('Decathlon #2')
+    # R4S.remove_rental('Decathlon #2')
+    print(R4S.get_employee_list())
+    R4S.add_employee_list(['Bartosz', 'Łukasik','Warszawa','Kolska','5',1])
+    print(R4S.get_employee_list())
+    R4S.update_employee('Bartosz Łukasik #2',['Barbara', 'Łukasik','Warszawa','Kolska','5',1])
+    print(R4S.get_employee_list())
+    R4S.remove_employee('Barbara Łukasik #2')
+    print(R4S.get_employee_list())
     R4S.conn.close()

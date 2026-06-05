@@ -119,7 +119,7 @@ class R4SR4SDB_model:
                                 FROM rental""").fetchall()
         self.rental_list = {}
         for r in res:
-            headquarters = self.curr.execute("""SELECT X(geo),Y(geo)
+            headquarters = self.curr.execute("""SELECT X(geo),Y(geo), name
                                 FROM headquarters WHERE id = ?""",(r[7],)).fetchone()
             distance = self.curr.execute("""SELECT ST_Distance(
                                 MakePoint(?, ?, 4326),
@@ -127,6 +127,7 @@ class R4SR4SDB_model:
                                 1
                                 ) AS distance_m;""",(headquarters[0],headquarters[1],r[5],r[6])).fetchone()[0]
             self.rental_list[f'{r[1]} #{r[0]}'] = list(r[1:8])
+            self.rental_list[f'{r[1]} #{r[0]}'].append(f'{headquarters[2]} #{r[7]}')
             self.rental_list[f'{r[1]} #{r[0]}'].append(round(distance/1000,2))
         return self.rental_list
     
@@ -136,7 +137,7 @@ class R4SR4SDB_model:
                                 FROM rental WHERE {filter} LIKE ?""",(value,)).fetchall()
         self.rental_list = {}
         for r in res:
-            headquarters = self.curr.execute("""SELECT X(geo),Y(geo)
+            headquarters = self.curr.execute("""SELECT X(geo),Y(geo), name
                                 FROM headquarters WHERE id = ?""",(r[7],)).fetchone()
             distance = self.curr.execute("""SELECT ST_Distance(
                                 MakePoint(?, ?, 4326),
@@ -144,6 +145,7 @@ class R4SR4SDB_model:
                                 1
                                 ) AS distance_m;""",(headquarters[0],headquarters[1],r[5],r[6])).fetchone()[0]
             self.rental_list[f'{r[1]} #{r[0]}'] = list(r[1:8])
+            self.rental_list[f'{r[1]} #{r[0]}'].append(f'{headquarters[2]} #{r[7]}')
             self.rental_list[f'{r[1]} #{r[0]}'].append(round(distance/1000,2))
         return self.rental_list
     
@@ -200,14 +202,18 @@ class R4SR4SDB_model:
                                 FROM employee""").fetchall()
         self.employee_list = {}
         for r in res:
-            rental = self.curr.execute("""SELECT X(geo),Y(geo)
-                                FROM rental WHERE id = ?""",(r[8],)).fetchone()
+            rental = self.curr.execute("""SELECT X(geo),Y(geo), name
+                                FROM rental WHERE id = ?""",(r[9],)).fetchone()
+            headquarters = self.curr.execute("""SELECT  name
+                                FROM headquarters WHERE id = ?""",(r[8],)).fetchone()
             distance = self.curr.execute("""SELECT ST_Distance(
                                 MakePoint(?, ?, 4326),
                                 MakePoint(?, ?, 4326),
                                 1
                                 ) AS distance_m;""",(rental[0],rental[1],r[6],r[7])).fetchone()[0]
             self.employee_list[f'{r[1]} {r[2]} #{r[0]}'] = list(r[1:8])
+            self.employee_list[f'{r[1]} {r[2]} #{r[0]}'].append(f'{headquarters[0]} #{r[8]}')
+            self.employee_list[f'{r[1]} {r[2]} #{r[0]}'].append(f'{rental[2]} #{r[9]}')
             self.employee_list[f'{r[1]} {r[2]} #{r[0]}'].append(round(distance/1000,2))
         return self.employee_list
     
@@ -217,14 +223,18 @@ class R4SR4SDB_model:
                                 FROM employee WHERE {filter} LIKE ?""",(value,)).fetchall()
         self.rental_list = {}
         for r in res:
-            rental = self.curr.execute("""SELECT X(geo),Y(geo)
-                                FROM rental WHERE id = ?""",(r[8],)).fetchone()
+            rental = self.curr.execute("""SELECT X(geo),Y(geo),name
+                                FROM rental WHERE id = ?""",(r[9],)).fetchone()
+            headquarters = self.curr.execute("""SELECT  name
+                                FROM headquarters WHERE id = ?""",(r[8],)).fetchone()
             distance = self.curr.execute("""SELECT ST_Distance(
                                 MakePoint(?, ?, 4326),
                                 MakePoint(?, ?, 4326),
                                 1
                                 ) AS distance_m;""",(rental[0],rental[1],r[6],r[7])).fetchone()[0]
             self.employee_list[f'{r[1]} {r[2]} #{r[0]}'] = list(r[1:8])
+            self.employee_list[f'{r[1]} {r[2]} #{r[0]}'].append(f'{headquarters[0]} #{r[8]}')
+            self.employee_list[f'{r[1]} {r[2]} #{r[0]}'].append(f'{rental[2]} #{r[9]}')
             self.employee_list[f'{r[1]} {r[2]} #{r[0]}'].append(round(distance/1000,2))
         return self.employee_list
 
@@ -309,8 +319,8 @@ if __name__ == '__main__':
     # print(R4S.get_rental_list())
     # R4S.add_headquaters_list(['Decathlon','Łódź', 'Piotrkowska', '16'])
     # R4S.add_rental_list(['Decathlon','Warszawa', 'Aleja Krakowska', '81', 2])
-    # print(R4S.get_headquaters_list())
-    # print(R4S.get_rental_list())
+    print(R4S.get_headquaters_list())
+    print(R4S.get_rental_list())
     # print(R4S.get_rental_list_based_on_headquater(2))
     # R4S.remove_headquater('Decathlon #2')
     # R4S.remove_rental('Decathlon #2')

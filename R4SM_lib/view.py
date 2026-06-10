@@ -1,16 +1,19 @@
 import tkinter as tk
 from tkinter import ttk
+import tkinter.font as tkFont
 import tkintermapview
+
 
 
 class View(ttk.Frame):
     def __init__(self,parent):
         super().__init__(parent)
 
-        
         # main view
-        self.header = tk.Frame(parent, bg="#000000", height=80)
+        self.header = tk.Frame(parent, bg="#000000")
         self.header.pack(side='top', fill='x')
+        self.Header_Label = ttk.Label(self.header,text='R4Sport managment',foreground='#FF0000',background='#000000', font=tkFont.Font(family="Arial", size=25))
+        self.Header_Label.grid(column=0,row=0,rowspan=2)
         self.container = tk.Frame(parent)
         self.container.pack(fill='both',expand=True)
         self.left_sidebar = tk.Frame(self.container,bg="#242424", width=250)
@@ -66,7 +69,18 @@ class View(ttk.Frame):
         self.email_entry['foreground'] = 'red'
         self.password_entry['foreground'] = 'red'
 
-    def show_success(self, message):
+    def show_dashboard(self,username):
+        self.username = username
+        self.Username_Labe = ttk.Label(self.header,text=f'User:\t{username}',foreground='#FFFFFF',background='#000000').grid(column=1,row=0)
+        self.form.destroy()
+        
+        ttk.Label(
+        self.main_area,
+        text="Witaj w aplikacji!",
+        font=("Arial", 16)
+        ).pack(expand=True)
+
+    def show_success(self, message,username):
         self.message_label['text'] = message
         self.message_label['foreground'] = 'green'
         self.message_label.after(3000,self.hide_message)
@@ -74,7 +88,9 @@ class View(ttk.Frame):
         self.password_entry['foreground'] = 'black'
         self.email_var.set('')
         self.password_var.set('')
-    
+        self.show_dashboard(username)
+
+
     def hide_message(self):
         self.message_label['text'] = ''
     
@@ -94,7 +110,7 @@ class testControler:
             self.view.show_error('Error') 
         if password == 'Admin1':
             print(password)
-            self.view.show_success('Loged In')
+            self.view.show_success('Loged In',login)
         else:
             self.view.show_error('Error')
 

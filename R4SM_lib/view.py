@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
-import tkintermapview
+import tkintermapview as tkm
+from tkinter import messagebox
 import model
 
 
@@ -71,10 +72,18 @@ class View(ttk.Frame):
         self.password_entry['foreground'] = 'red'
 
     def display_Headquarters_datatype_menu(self):
+        # Map view
+        self.map_area = tk.LabelFrame(self.main_area)
+        self.map_area.pack(pady=10, padx=10, fill='both',expand=True)
         
+        self.map_widget = tkm.TkinterMapView(self.map_area)
+        self.change_map_tile()
+        self.map_widget.set_position(52.2297, 21.0122)
+        self.map_widget.set_zoom(4)
+        self.map_widget.pack(fill='both',expand=True)
         # Table view
         self.table_frame = tk.Frame(self.main_area)
-        self.table_frame.pack(expand=True)
+        self.table_frame.pack(fill='both',expand=True)
         self.scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical")
         self.table = ttk.Treeview(self.table_frame,show='headings',
                                   columns=('Name','City','Road','Building No.','Lat','Lon'),
@@ -118,7 +127,7 @@ class View(ttk.Frame):
         self.controller.get_dictionarys_list()
         self.buttons_frame = tk.Frame(self.leftbar_filtering_and_list_frame,background='#242424')
         self.buttons_frame.pack(expand=True)
-        self.show_details_button = tk.Button(self.buttons_frame,text='Show details')
+        self.show_details_button = tk.Button(self.buttons_frame,text='Show details',command=self.show_details_view)
         self.show_details_button.grid(row=0,column=0)
         self.update_button = tk.Button(self.buttons_frame,text='Update',command=self.fill_in_inputs)
         self.update_button.grid(row=0,column=1)
@@ -148,17 +157,39 @@ class View(ttk.Frame):
         self.message_label_location.grid(row=4,column=0)
         self.add_confirm_button = tk.Button(self.input_form_frame,text='Add',command=self.controller.add_to_db)
         self.add_confirm_button.grid(row=5,column=0)
-        
+        # Detail view Labels
+        tk.Label(self.input_form_frame,text='Details:',foreground="#ffffff",background='#242424').grid(row=8,column=0,columnspan=2)
+        tk.Label(self.input_form_frame,text='Name:',foreground="#ffffff",background='#242424').grid(row=9,column=0)
+        self.detail_name_label = tk.Label(self.input_form_frame,text='...',foreground="#ffffff",background='#242424')
+        self.detail_name_label.grid(row=9,column=1)
+        tk.Label(self.input_form_frame,text='City:',foreground="#ffffff",background='#242424').grid(row=10,column=0)
+        self.detail_city_label = tk.Label(self.input_form_frame,text='...',foreground="#ffffff",background='#242424')
+        self.detail_city_label.grid(row=10,column=1)
+        tk.Label(self.input_form_frame,text='Road:',foreground="#ffffff",background='#242424').grid(row=11,column=0)
+        self.detail_road_label = tk.Label(self.input_form_frame,text='...',foreground="#ffffff",background='#242424')
+        self.detail_road_label.grid(row=11,column=1)
+        tk.Label(self.input_form_frame,text='No.:',foreground="#ffffff",background='#242424').grid(row=12,column=0)
+        self.detail_no_label = tk.Label(self.input_form_frame,text='...',foreground="#ffffff",background='#242424')
+        self.detail_no_label.grid(row=12,column=1)
         
         
 
 
 
     def display_Rental_datatype_menu(self):
-
+        # Map view
+        self.map_area = tk.LabelFrame(self.main_area)
+        self.map_area.pack(pady=10, padx=10, fill='both',expand=True)
+        
+        self.map_widget = tkm.TkinterMapView(self.map_area)
+        self.change_map_tile()
+        self.map_widget.set_position(52.2297, 21.0122)
+        self.map_widget.set_zoom(4)
+        self.map_widget.pack(fill='both',expand=True)
+        
         # Table view
         self.table_frame = tk.Frame(self.main_area)
-        self.table_frame.pack(expand=True)
+        self.table_frame.pack(fill='both',expand=True)
         self.scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical")
         self.table = ttk.Treeview(self.table_frame,show='headings',
                                   columns=('Name','City','Road','Building No.','Lat','Lon','Headquoters','Dsitance'),
@@ -182,7 +213,6 @@ class View(ttk.Frame):
 
 
         ttk.Label(self.leftbar_filtering_and_list_frame,text='Filter:',foreground="#ffffff",background='#242424').pack()
-        ttk.Label(self.leftbar_filtering_and_list_frame,text='Rental',foreground="#ffffff",background='#242424').pack()
         self.filterin_frame = tk.Frame(self.leftbar_filtering_and_list_frame,background='#242424')
         self.filterin_frame.pack(expand=True)
         self.filtering_field = tk.StringVar(value='id')
@@ -206,7 +236,7 @@ class View(ttk.Frame):
         self.controller.get_dictionarys_list()
         self.buttons_frame = tk.Frame(self.leftbar_filtering_and_list_frame,background='#242424')
         self.buttons_frame.pack(expand=True)
-        self.show_details_button = tk.Button(self.buttons_frame,text='Show details')
+        self.show_details_button = tk.Button(self.buttons_frame,text='Show details', command=self.show_details_view)
         self.show_details_button.grid(row=0,column=0)
         self.update_button = tk.Button(self.buttons_frame,text='Update',command=self.fill_in_inputs)
         self.update_button.grid(row=0,column=1)
@@ -244,23 +274,48 @@ class View(ttk.Frame):
         self.message_label_location.grid(row=5,column=0)
         self.add_confirm_button = tk.Button(self.input_form_frame,text='Add',command=self.controller.add_to_db)
         self.add_confirm_button.grid(row=6,column=0)
+        # Detail view Labels
+        tk.Label(self.input_form_frame,text='Details:',foreground="#ffffff",background='#242424').grid(row=8,column=0,columnspan=2)
+        tk.Label(self.input_form_frame,text='Name:',foreground="#ffffff",background='#242424').grid(row=9,column=0)
+        self.detail_name_label = tk.Label(self.input_form_frame,text='...',foreground="#ffffff",background='#242424')
+        self.detail_name_label.grid(row=9,column=1)
+        tk.Label(self.input_form_frame,text='City:',foreground="#ffffff",background='#242424').grid(row=10,column=0)
+        self.detail_city_label = tk.Label(self.input_form_frame,text='...',foreground="#ffffff",background='#242424')
+        self.detail_city_label.grid(row=10,column=1)
+        tk.Label(self.input_form_frame,text='Road:',foreground="#ffffff",background='#242424').grid(row=11,column=0)
+        self.detail_road_label = tk.Label(self.input_form_frame,text='...',foreground="#ffffff",background='#242424')
+        self.detail_road_label.grid(row=11,column=1)
+        tk.Label(self.input_form_frame,text='No.:',foreground="#ffffff",background='#242424').grid(row=12,column=0)
+        self.detail_no_label = tk.Label(self.input_form_frame,text='...',foreground="#ffffff",background='#242424')
+        self.detail_no_label.grid(row=12,column=1)
+        
 
     def display_Employee_datatype_menu(self):
+        # Map view
+        self.map_area = tk.LabelFrame(self.main_area)
+        self.map_area.pack(pady=10, padx=10, fill='both',expand=True)
+        
+        self.map_widget = tkm.TkinterMapView(self.map_area)
+        self.change_map_tile()
+        self.map_widget.set_position(52.2297, 21.0122)
+        self.map_widget.set_zoom(4)
+        self.map_widget.pack(fill='both',expand=True)
         # Table view
         self.table_frame = tk.Frame(self.main_area)
-        self.table_frame.pack(expand=True)
+        self.table_frame.pack(fill='both',expand=True)
         self.scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical")
         self.table = ttk.Treeview(self.table_frame,show='headings',
-                                  columns=('Name','City','Road','Building No.','Lat','Lon', 'Headquoters', 'Rental', 'Distance'),
+                                  columns=('First Name','Family Name','City','Road','Building No.','Lat','Lon', 'Headquoters', 'Rental', 'Distance'),
                                    yscrollcommand=self.scrollbar.set)
-        for col in ('Name','City','Road','Building No.','Lat','Lon', 'Headquoters', 'Rental', 'Distance'):
+        for col in ('First Name','Family Name','City','Road','Building No.','Lat','Lon', 'Headquoters', 'Rental', 'Distance'):
             self.table.column(col, width=100, anchor="center")
         
         self.scrollbar.config(command=self.table.yview)
         self.scrollbar.pack(side="right", fill="y")
         self.table.pack(side="left", fill="both", expand=True)
         self.table.heading("#0",text='Label')
-        self.table.heading("Name",text='Name')
+        self.table.heading("First Name",text='First Name')
+        self.table.heading("Family Name",text='Family Name')
         self.table.heading("City",text='City')
         self.table.heading("Road",text='Road')
         self.table.heading("Building No.",text='Building No.')
@@ -272,7 +327,6 @@ class View(ttk.Frame):
         self.table.pack()
 
         ttk.Label(self.leftbar_filtering_and_list_frame,text='Filter:',foreground="#ffffff",background='#242424').pack()
-        ttk.Label(self.leftbar_filtering_and_list_frame,text='Employee',foreground="#ffffff",background='#242424').pack()
         self.filterin_frame = tk.Frame(self.leftbar_filtering_and_list_frame,background='#242424')
         self.filterin_frame.pack(expand=True)
         self.filtering_field = tk.StringVar(value='id')
@@ -297,7 +351,7 @@ class View(ttk.Frame):
         self.controller.get_dictionarys_list()
         self.buttons_frame = tk.Frame(self.leftbar_filtering_and_list_frame,background='#242424')
         self.buttons_frame.pack(expand=True)
-        self.show_details_button = tk.Button(self.buttons_frame,text='Show details')
+        self.show_details_button = tk.Button(self.buttons_frame,text='Show details', command=self.show_details_view)
         self.show_details_button.grid(row=0,column=0)
         self.update_button = tk.Button(self.buttons_frame,text='Update',command=self.fill_in_inputs)
         self.update_button.grid(row=0,column=1)
@@ -339,7 +393,32 @@ class View(ttk.Frame):
         self.message_label_location.grid(row=6,column=0)
         self.add_confirm_button = tk.Button(self.input_form_frame,text='Add',command=self.controller.add_to_db)
         self.add_confirm_button.grid(row=7,column=0)
+        # Detail view Labels
+        tk.Label(self.input_form_frame,text='Details:',foreground="#ffffff",background='#242424').grid(row=8,column=0,columnspan=2)
+        tk.Label(self.input_form_frame,text='Name:',foreground="#ffffff",background='#242424').grid(row=9,column=0)
+        self.detail_name_label = tk.Label(self.input_form_frame,text='...',foreground="#ffffff",background='#242424')
+        self.detail_name_label.grid(row=9,column=1)
+        tk.Label(self.input_form_frame,text='City:',foreground="#ffffff",background='#242424').grid(row=10,column=0)
+        self.detail_city_label = tk.Label(self.input_form_frame,text='...',foreground="#ffffff",background='#242424')
+        self.detail_city_label.grid(row=10,column=1)
+        tk.Label(self.input_form_frame,text='Road:',foreground="#ffffff",background='#242424').grid(row=11,column=0)
+        self.detail_road_label = tk.Label(self.input_form_frame,text='...',foreground="#ffffff",background='#242424')
+        self.detail_road_label.grid(row=11,column=1)
+        tk.Label(self.input_form_frame,text='No.:',foreground="#ffffff",background='#242424').grid(row=12,column=0)
+        self.detail_no_label = tk.Label(self.input_form_frame,text='...',foreground="#ffffff",background='#242424')
+        self.detail_no_label.grid(row=12,column=1)
         
+    def change_map_tile(self,*args):
+        choice = self.bgmap_selected.get()
+        if choice == "OSM":
+            self.map_widget.set_tile_server(
+                "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            )
+
+        elif choice == "Satellite":
+            self.map_widget.set_tile_server(
+                "https://mt0.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+            )
     
     def change_data_view(self,*args):
         choice = self.data_type_selected.get()
@@ -369,7 +448,14 @@ class View(ttk.Frame):
             "Employee")
         self.leftbar_datatype_dropdown.config(bg="#ff0000", fg="#ffffff")
         self.leftbar_datatype_dropdown.pack(pady=5,padx=5)
-        
+        self.bgmap_selected = tk.StringVar(value='OSM')
+        self.bgmap_dropdown = tk.OptionMenu(
+            self.toolbar,
+            self.bgmap_selected,
+            "OSM", "Satellite")
+        self.bgmap_dropdown.config(bg="#ff0000", fg="#ffffff")
+        self.bgmap_dropdown.pack(pady=5,padx=5,side='right')
+        self.bgmap_selected.trace_add("write", self.change_map_tile)
         self.data_type_selected.trace_add("write", self.change_data_view)
         self.leftbar_filtering_and_list_frame = tk.Frame(self.left_sidebar,background='#242424')
         self.leftbar_filtering_and_list_frame.pack(expand=True)
@@ -417,6 +503,25 @@ class View(ttk.Frame):
         res = self.controller.dict_res[0]
         res = res[kay[0]]
         return res, kay
+    
+    def show_details_view(self):
+        res, kay = self.extract_active_from_list_bx()
+        datatype = self.data_type_selected.get()
+        if datatype=='Headquarters' or datatype=='Rental':
+            self.map_widget.set_position(res[5],res[4])
+            self.map_widget.set_zoom(16)
+            self.detail_name_label.config(text=res[0])
+            self.detail_city_label.config(text=res[1])
+            self.detail_road_label.config(text=res[2])
+            self.detail_no_label.config(text=res[3])
+        if datatype=='Employee':
+            self.map_widget.set_position(res[6],res[5])
+            self.map_widget.set_zoom(16)
+            self.detail_name_label.config(text=res[0])
+            self.detail_city_label.config(text=res[2])
+            self.detail_road_label.config(text=res[3])
+            self.detail_no_label.config(text=res[4])
+
     def fill_in_inputs(self,datatype=None):
         res, kay = self.extract_active_from_list_bx()
         if datatype==None:
@@ -486,6 +591,7 @@ class testControler:
             self.view.list_box.insert(idx,object_input)
     
     def get_dictionarys_list(self,data_type = None):
+        self.view.map_widget.delete_all_marker()
         for item in self.view.table.get_children():
             self.view.table.delete(item)
         if data_type==None:
@@ -495,20 +601,23 @@ class testControler:
             data_dictionary = self.model_R4SDB.get_employee_list()              
             for k,dat in data_dictionary.items():
                 self.view.table.insert("", "end", iid=k, values=dat)
+                self.view.map_widget.set_marker(dat[6],dat[5],text=f'{dat[0]} {dat[1]}')
         if data_type=="Headquarters":
             data_dictionary = self.model_R4SDB.get_headquaters_list()
             for k,dat in data_dictionary.items():
                 self.view.table.insert("", "end", iid=k, values=dat)
+                self.view.map_widget.set_marker(dat[5],dat[4],text=dat[0])
         if data_type=="Rental":
             data_dictionary = self.model_R4SDB.get_rental_list()            
             for k,dat in data_dictionary.items():
                 self.view.table.insert("", "end", iid=k, values=dat)
+                self.view.map_widget.set_marker(dat[5],dat[4],text=dat[0])
             
         dict_keyes = list(data_dictionary.keys())
         self.populate_listbox(dict_keyes)
     
     def get_filtred_dictionarys_list(self,filter=None,value=None,data_type = None):
-        
+        self.view.map_widget.delete_all_marker()
         for item in self.view.table.get_children():
             self.view.table.delete(item)
         if data_type==None:
@@ -524,14 +633,17 @@ class testControler:
                 data_dictionary = self.model_R4SDB.get_filtred_employee_list(filter,value)
                 for k,dat in data_dictionary.items():
                     self.view.table.insert("", "end", iid=k, values=dat)
+                    self.view.map_widget.set_marker(dat[6],dat[5],text=f'{dat[0]} {dat[1]}')
             if data_type=="Headquarters":
                 data_dictionary = self.model_R4SDB.get_filtred_headquaters_list(filter,value)
                 for k,dat in data_dictionary.items():
                     self.view.table.insert("", "end", iid=k, values=dat)
+                    self.view.map_widget.set_marker(dat[5],dat[4],text=dat[0])
             if data_type=="Rental":
                 data_dictionary = self.model_R4SDB.get_filtred_rental_list(filter,value)
                 for k,dat in data_dictionary.items():
                     self.view.table.insert("", "end", iid=k, values=dat)
+                    self.view.map_widget.set_marker(dat[5],dat[4],text=dat[0])
             dict_keyes = list(data_dictionary.keys())
             self.populate_listbox(dict_keyes)
         
@@ -652,16 +764,14 @@ class testControler:
         if data_type=="Headquarters":
                 self.get_filtred_dictionarys('headqoters_id',id,'Rental')
                 if  len(self.dict_res[1]) >0:
-                    print('Są')
+                    messagebox.showwarning("Warning", "There are related Rentals to this Headquarters, remove or edit them first")
                 else:
-                    print('Nie ma')
                     self.model_R4SDB.remove_headquater(kay)
         if data_type=="Rental":
                 self.get_filtred_dictionarys('rental_id',id,'Employee')
                 if  len(self.dict_res[1]) >0:
-                    print('Są')
+                    messagebox.showwarning("Warning", "There are related Employees to this Rental, remove or edit them first")
                 else:
-                    print('Nie ma')
                     self.model_R4SDB.remove_rental(kay)
         if data_type=="Employee":
                 self.model_R4SDB.update_employee(kay)

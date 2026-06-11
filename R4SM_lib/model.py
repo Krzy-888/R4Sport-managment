@@ -221,7 +221,7 @@ class R4SR4SDB_model:
         res = self.curr.execute(f"""SELECT id, firstname, familyname, city,
                                 road, building_nr,X(geo),Y(geo),headqoters_id, rental_id 
                                 FROM employee WHERE {filter} LIKE ?""",(value,)).fetchall()
-        self.rental_list = {}
+        self.employee_list = {}
         for r in res:
             rental = self.curr.execute("""SELECT X(geo),Y(geo),name
                                 FROM rental WHERE id = ?""",(r[9],)).fetchone()
@@ -319,16 +319,19 @@ if __name__ == '__main__':
     # print(R4S.get_rental_list())
     # R4S.add_headquaters_list(['Decathlon','Łódź', 'Piotrkowska', '16'])
     # R4S.add_rental_list(['Decathlon','Warszawa', 'Aleja Krakowska', '81', 2])
-    print(R4S.get_headquaters_list())
-    print(R4S.get_rental_list())
-    # print(R4S.get_rental_list_based_on_headquater(2))
-    # R4S.remove_headquater('Decathlon #2')
-    # R4S.remove_rental('Decathlon #2')
-    print(R4S.get_employee_list())
-    R4S.add_employee_list(['Bartosz', 'Łukasik','Warszawa','Kolska','5',1])
-    print(R4S.get_employee_list())
-    R4S.update_employee('Bartosz Łukasik #2',['Barbara', 'Łukasik','Warszawa','Kolska','5',1])
-    print(R4S.get_employee_list())
-    R4S.remove_employee('Barbara Łukasik #2')
-    print(R4S.get_employee_list())
+    # print(R4S.get_headquaters_list())
+    # print(R4S.get_rental_list())
+    # # print(R4S.get_rental_list_based_on_headquater(2))
+    # # R4S.remove_headquater('Decathlon #2')
+    # # R4S.remove_rental('Decathlon #2')
+    # print(R4S.get_employee_list())
+    # R4S.add_employee_list(['Bartosz', 'Łukasik','Warszawa','Kolska','5',1])
+    # print(R4S.get_employee_list())
+    # R4S.update_employee('Bartosz Łukasik #2',['Barbara', 'Łukasik','Warszawa','Kolska','5',1])
+    # print(R4S.get_employee_list())
+    # R4S.remove_employee('Barbara Łukasik #2')
+    # print(R4S.get_filtred_employee_list('id',1))
+    # print(R4S.get_employee_list())
+    # print(R4S.get_filtred_employee_list('id','2'))
+
     R4S.conn.close()

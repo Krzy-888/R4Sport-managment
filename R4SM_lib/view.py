@@ -27,7 +27,8 @@ class View(ttk.Frame):
         
         # środkowy kontener na formularz
         self.form = tk.Frame(self.main_area)
-        self.form.pack(expand=True)  
+        self.form.pack(expand=True)
+
 
         # Login entry
         self.label_login = ttk.Label(self.form,text='Email:')
@@ -70,6 +71,29 @@ class View(ttk.Frame):
         self.password_entry['foreground'] = 'red'
 
     def display_Headquarters_datatype_menu(self):
+        
+        # Table view
+        self.table_frame = tk.Frame(self.main_area)
+        self.table_frame.pack(expand=True)
+        self.scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical")
+        self.table = ttk.Treeview(self.table_frame,show='headings',
+                                  columns=('Name','City','Road','Building No.','Lat','Lon'),
+                                   yscrollcommand=self.scrollbar.set)
+        for col in ('Name','City','Road','Building No.','Lat','Lon'):
+            self.table.column(col, width=120, anchor="center")
+        
+        self.scrollbar.config(command=self.table.yview)
+        self.scrollbar.pack(side="right", fill="y")
+        self.table.pack(side="left", fill="both", expand=True)
+        self.table.heading("#0",text='Label')
+        self.table.heading("Name",text='Name')
+        self.table.heading("City",text='City')
+        self.table.heading("Road",text='Road')
+        self.table.heading("Building No.",text='Building No.')
+        self.table.heading("Lat",text='Lat')
+        self.table.heading("Lon",text='Lon')
+        self.table.pack()
+        
         # left side bar
         ttk.Label(self.leftbar_filtering_and_list_frame,text='Filter:',foreground="#ffffff",background='#242424').pack()
         # ttk.Label(self.leftbar_filtering_and_list_frame,text='Headquarters',foreground="#ffffff",background='#242424').pack()
@@ -124,9 +148,39 @@ class View(ttk.Frame):
         self.message_label_location.grid(row=4,column=0)
         self.add_confirm_button = tk.Button(self.input_form_frame,text='Add',command=self.controller.add_to_db)
         self.add_confirm_button.grid(row=5,column=0)
+        
+        
+        
+
 
 
     def display_Rental_datatype_menu(self):
+
+        # Table view
+        self.table_frame = tk.Frame(self.main_area)
+        self.table_frame.pack(expand=True)
+        self.scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical")
+        self.table = ttk.Treeview(self.table_frame,show='headings',
+                                  columns=('Name','City','Road','Building No.','Lat','Lon','Headquoters','Dsitance'),
+                                   yscrollcommand=self.scrollbar.set)
+        for col in ('Name','City','Road','Building No.','Lat','Lon', 'Headquoters', 'Dsitance'):
+            self.table.column(col, width=100, anchor="center")
+        
+        self.scrollbar.config(command=self.table.yview)
+        self.scrollbar.pack(side="right", fill="y")
+        self.table.pack(side="left", fill="both", expand=True)
+        self.table.heading("#0",text='Label')
+        self.table.heading("Name",text='Name')
+        self.table.heading("City",text='City')
+        self.table.heading("Road",text='Road')
+        self.table.heading("Building No.",text='Building No.')
+        self.table.heading("Lat",text='Lat')
+        self.table.heading("Lon",text='Lon')
+        self.table.heading("Headquoters",text='Headquoters')
+        self.table.heading("Dsitance",text='Dsitance')
+        self.table.pack()
+
+
         ttk.Label(self.leftbar_filtering_and_list_frame,text='Filter:',foreground="#ffffff",background='#242424').pack()
         ttk.Label(self.leftbar_filtering_and_list_frame,text='Rental',foreground="#ffffff",background='#242424').pack()
         self.filterin_frame = tk.Frame(self.leftbar_filtering_and_list_frame,background='#242424')
@@ -192,6 +246,31 @@ class View(ttk.Frame):
         self.add_confirm_button.grid(row=6,column=0)
 
     def display_Employee_datatype_menu(self):
+        # Table view
+        self.table_frame = tk.Frame(self.main_area)
+        self.table_frame.pack(expand=True)
+        self.scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical")
+        self.table = ttk.Treeview(self.table_frame,show='headings',
+                                  columns=('Name','City','Road','Building No.','Lat','Lon', 'Headquoters', 'Rental', 'Distance'),
+                                   yscrollcommand=self.scrollbar.set)
+        for col in ('Name','City','Road','Building No.','Lat','Lon', 'Headquoters', 'Rental', 'Distance'):
+            self.table.column(col, width=100, anchor="center")
+        
+        self.scrollbar.config(command=self.table.yview)
+        self.scrollbar.pack(side="right", fill="y")
+        self.table.pack(side="left", fill="both", expand=True)
+        self.table.heading("#0",text='Label')
+        self.table.heading("Name",text='Name')
+        self.table.heading("City",text='City')
+        self.table.heading("Road",text='Road')
+        self.table.heading("Building No.",text='Building No.')
+        self.table.heading("Lat",text='Lat')
+        self.table.heading("Lon",text='Lon')
+        self.table.heading("Headquoters",text='Headquoters')
+        self.table.heading("Rental",text='Rental')
+        self.table.heading("Distance",text='Distance')
+        self.table.pack()
+
         ttk.Label(self.leftbar_filtering_and_list_frame,text='Filter:',foreground="#ffffff",background='#242424').pack()
         ttk.Label(self.leftbar_filtering_and_list_frame,text='Employee',foreground="#ffffff",background='#242424').pack()
         self.filterin_frame = tk.Frame(self.leftbar_filtering_and_list_frame,background='#242424')
@@ -268,6 +347,8 @@ class View(ttk.Frame):
             widget.destroy()
         for widget in self.rightbar_form_input_frame.winfo_children():
             widget.destroy()
+        for widget in self.main_area.winfo_children():
+            widget.destroy()
         if choice =="Headquarters":
             self.display_Headquarters_datatype_menu()
         if choice =="Rental":
@@ -295,11 +376,7 @@ class View(ttk.Frame):
         self.rightbar_form_input_frame = tk.Frame(self.right_sidebar,background='#242424')
         self.rightbar_form_input_frame.pack(expand=True)
         self.display_Headquarters_datatype_menu()
-        ttk.Label(
-        self.main_area,
-        text="Witaj w aplikacji!",
-        font=("Arial", 16)
-        ).pack(expand=True)
+        
 
     def show_success(self, username):
         self.show_dashboard(username)
@@ -409,18 +486,30 @@ class testControler:
             self.view.list_box.insert(idx,object_input)
     
     def get_dictionarys_list(self,data_type = None):
+        for item in self.view.table.get_children():
+            self.view.table.delete(item)
         if data_type==None:
             data_type = self.view.data_type_selected.get()
+
         if data_type=="Employee":
-            data_dictionary = self.model_R4SDB.get_employee_list()
+            data_dictionary = self.model_R4SDB.get_employee_list()              
+            for k,dat in data_dictionary.items():
+                self.view.table.insert("", "end", iid=k, values=dat)
         if data_type=="Headquarters":
             data_dictionary = self.model_R4SDB.get_headquaters_list()
+            for k,dat in data_dictionary.items():
+                self.view.table.insert("", "end", iid=k, values=dat)
         if data_type=="Rental":
-            data_dictionary = self.model_R4SDB.get_rental_list()
+            data_dictionary = self.model_R4SDB.get_rental_list()            
+            for k,dat in data_dictionary.items():
+                self.view.table.insert("", "end", iid=k, values=dat)
+            
         dict_keyes = list(data_dictionary.keys())
         self.populate_listbox(dict_keyes)
     
     def get_filtred_dictionarys_list(self,filter=None,value=None,data_type = None):
+        for item in self.view.table.get_children():
+            self.view.table.delete(item)
         if data_type==None:
             data_type = self.view.data_type_selected.get()
         if value==None:
@@ -432,10 +521,16 @@ class testControler:
         else:
             if data_type=="Employee":
                 data_dictionary = self.model_R4SDB.get_filtred_employee_list(filter,value)
+                # for k,dat in data_dictionary.items():
+                #     self.view.table.insert("", "end", iid=k, values=dat)
             if data_type=="Headquarters":
                 data_dictionary = self.model_R4SDB.get_filtred_headquaters_list(filter,value)
+                for k,dat in data_dictionary.items():
+                    self.view.table.insert("", "end", iid=k, values=dat)
             if data_type=="Rental":
                 data_dictionary = self.model_R4SDB.get_filtred_rental_list(filter,value)
+                for k,dat in data_dictionary.items():
+                    self.view.table.insert("", "end", iid=k, values=dat)
             dict_keyes = list(data_dictionary.keys())
             self.populate_listbox(dict_keyes)
         

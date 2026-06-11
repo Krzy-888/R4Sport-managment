@@ -508,12 +508,13 @@ class testControler:
         self.populate_listbox(dict_keyes)
     
     def get_filtred_dictionarys_list(self,filter=None,value=None,data_type = None):
+        
         for item in self.view.table.get_children():
             self.view.table.delete(item)
         if data_type==None:
             data_type = self.view.data_type_selected.get()
         if value==None:
-            value = self.view.filtering_var.get()
+            value = f'%{self.view.filtering_var.get()}%'
         if filter==None:
             filter = self.view.filtering_field.get()
         if value == '':
@@ -521,8 +522,8 @@ class testControler:
         else:
             if data_type=="Employee":
                 data_dictionary = self.model_R4SDB.get_filtred_employee_list(filter,value)
-                # for k,dat in data_dictionary.items():
-                #     self.view.table.insert("", "end", iid=k, values=dat)
+                for k,dat in data_dictionary.items():
+                    self.view.table.insert("", "end", iid=k, values=dat)
             if data_type=="Headquarters":
                 data_dictionary = self.model_R4SDB.get_filtred_headquaters_list(filter,value)
                 for k,dat in data_dictionary.items():
@@ -550,7 +551,7 @@ class testControler:
         if data_type==None:
             data_type = self.view.data_type_selected.get()
         if value==None:
-            value = self.view.filtering_var.get()
+            value = f'%{self.view.filtering_var.get()}%'
         if filter==None:
             filter = self.view.filtering_field.get()
         if value == '':

@@ -70,6 +70,7 @@ class View(ttk.Frame):
         self.password_entry['foreground'] = 'red'
 
     def display_Headquarters_datatype_menu(self):
+        # left side bar
         ttk.Label(self.leftbar_filtering_and_list_frame,text='Filter:',foreground="#ffffff",background='#242424').pack()
         # ttk.Label(self.leftbar_filtering_and_list_frame,text='Headquarters',foreground="#ffffff",background='#242424').pack()
         self.filterin_frame = tk.Frame(self.leftbar_filtering_and_list_frame,background='#242424')
@@ -80,7 +81,8 @@ class View(ttk.Frame):
             self.filtering_field,
             "id",
             "name",
-            "city")
+            "city",
+            "road")
         self.filter_field_dropdown.config(bg="#ff0000", fg="#ffffff")
         self.filter_field_dropdown.grid(row=0,column=0)
         self.filtering_var = tk.StringVar()
@@ -94,6 +96,35 @@ class View(ttk.Frame):
         self.buttons_frame.pack(expand=True)
         self.show_details_button = tk.Button(self.buttons_frame,text='Show details')
         self.show_details_button.grid(row=0,column=0)
+        self.update_button = tk.Button(self.buttons_frame,text='Update',command=self.fill_in_inputs)
+        self.update_button.grid(row=0,column=1)
+        self.remove_button = tk.Button(self.buttons_frame,text='Remove',command=self.controller.remove_from_db)
+        self.remove_button.grid(row=0,column=2)
+
+        # right side bar
+        self.input_form_frame = tk.Frame(self.rightbar_form_input_frame,background='#242424')
+        self.input_form_frame.pack(expand=True)
+        tk.Label(self.input_form_frame,text='Name:',foreground="#ffffff",background='#242424').grid(row=0,column=0)
+        self.name = tk.StringVar()
+        self.name_entry = ttk.Entry(self.input_form_frame, textvariable=self.name, width=30)
+        self.name_entry.grid(row=0,column=1)
+        tk.Label(self.input_form_frame,text='City:',foreground="#ffffff",background='#242424').grid(row=1,column=0)
+        self.city = tk.StringVar()
+        self.city_entry = ttk.Entry(self.input_form_frame, textvariable=self.city, width=30)
+        self.city_entry.grid(row=1,column=1)
+        tk.Label(self.input_form_frame,text='Road:',foreground="#ffffff",background='#242424').grid(row=2,column=0)
+        self.road = tk.StringVar()
+        self.road_entry = ttk.Entry(self.input_form_frame, textvariable=self.road, width=30)
+        self.road_entry.grid(row=2,column=1)
+        tk.Label(self.input_form_frame,text='No.:',foreground="#ffffff",background='#242424').grid(row=3,column=0)
+        self.number = tk.StringVar()
+        self.number_entry = ttk.Entry(self.input_form_frame, textvariable=self.number, width=30)
+        self.number_entry.grid(row=3,column=1)
+        self.message_label_location = tk.Label(self.input_form_frame,text='',foreground="#ffffff",background='#242424')
+        self.message_label_location.grid(row=4,column=0)
+        self.add_confirm_button = tk.Button(self.input_form_frame,text='Add',command=self.controller.add_to_db)
+        self.add_confirm_button.grid(row=5,column=0)
+
 
     def display_Rental_datatype_menu(self):
         ttk.Label(self.leftbar_filtering_and_list_frame,text='Filter:',foreground="#ffffff",background='#242424').pack()
@@ -106,7 +137,10 @@ class View(ttk.Frame):
             self.filtering_field,
             "id",
             "name",
-            "city")
+            "city",
+            "road",
+            "headqoters_id"
+            )
         self.filter_field_dropdown.config(bg="#ff0000", fg="#ffffff")
         self.filter_field_dropdown.grid(row=0,column=0)
         self.filtering_var = tk.StringVar()
@@ -116,6 +150,47 @@ class View(ttk.Frame):
         self.list_box = tk.Listbox(self.leftbar_filtering_and_list_frame, height=15, width=30)
         self.list_box.pack(padx=10,pady=10)
         self.controller.get_dictionarys_list()
+        self.buttons_frame = tk.Frame(self.leftbar_filtering_and_list_frame,background='#242424')
+        self.buttons_frame.pack(expand=True)
+        self.show_details_button = tk.Button(self.buttons_frame,text='Show details')
+        self.show_details_button.grid(row=0,column=0)
+        self.update_button = tk.Button(self.buttons_frame,text='Update',command=self.fill_in_inputs)
+        self.update_button.grid(row=0,column=1)
+        self.remove_button = tk.Button(self.buttons_frame,text='Remove',command=self.controller.remove_from_db)
+        self.remove_button.grid(row=0,column=2)
+
+
+        # right side bar
+        self.input_form_frame = tk.Frame(self.rightbar_form_input_frame,background='#242424')
+        self.input_form_frame.pack(expand=True)
+        tk.Label(self.input_form_frame,text='Name:',foreground="#ffffff",background='#242424').grid(row=0,column=0)
+        self.name = tk.StringVar()
+        self.name_entry = ttk.Entry(self.input_form_frame, textvariable=self.name, width=30)
+        self.name_entry.grid(row=0,column=1)
+        tk.Label(self.input_form_frame,text='City:',foreground="#ffffff",background='#242424').grid(row=1,column=0)
+        self.city = tk.StringVar()
+        self.city_entry = ttk.Entry(self.input_form_frame, textvariable=self.city, width=30)
+        self.city_entry.grid(row=1,column=1)
+        tk.Label(self.input_form_frame,text='Road:',foreground="#ffffff",background='#242424').grid(row=2,column=0)
+        self.road = tk.StringVar()
+        self.road_entry = ttk.Entry(self.input_form_frame, textvariable=self.road, width=30)
+        self.road_entry.grid(row=2,column=1)
+        tk.Label(self.input_form_frame,text='No.:',foreground="#ffffff",background='#242424').grid(row=3,column=0)
+        self.number = tk.StringVar()
+        self.number_entry = ttk.Entry(self.input_form_frame, textvariable=self.number, width=30)
+        self.number_entry.grid(row=3,column=1)
+        self.number = tk.StringVar()
+        self.number_entry = ttk.Entry(self.input_form_frame, textvariable=self.number, width=30)
+        self.number_entry.grid(row=3,column=1)
+        tk.Label(self.input_form_frame,text='Headquarters ID:',foreground="#ffffff",background='#242424').grid(row=4,column=0)
+        self.head_id = tk.StringVar()
+        self.head_id_entry = ttk.Entry(self.input_form_frame, textvariable=self.head_id, width=30)
+        self.head_id_entry.grid(row=4,column=1)
+        self.message_label_location = tk.Label(self.input_form_frame,text='',foreground="#ffffff",background='#242424')
+        self.message_label_location.grid(row=5,column=0)
+        self.add_confirm_button = tk.Button(self.input_form_frame,text='Add',command=self.controller.add_to_db)
+        self.add_confirm_button.grid(row=6,column=0)
+
     def display_Employee_datatype_menu(self):
         ttk.Label(self.leftbar_filtering_and_list_frame,text='Filter:',foreground="#ffffff",background='#242424').pack()
         ttk.Label(self.leftbar_filtering_and_list_frame,text='Employee',foreground="#ffffff",background='#242424').pack()
@@ -126,8 +201,12 @@ class View(ttk.Frame):
             self.filterin_frame,
             self.filtering_field,
             "id",
-            "name",
-            "city")
+            "firstname",
+            "familyname",
+            "city",
+            "road",
+            "rental_id",
+            "headqoters_id")
         self.filter_field_dropdown.config(bg="#ff0000", fg="#ffffff")
         self.filter_field_dropdown.grid(row=0,column=0)
         self.filtering_var = tk.StringVar()
@@ -137,11 +216,57 @@ class View(ttk.Frame):
         self.list_box = tk.Listbox(self.leftbar_filtering_and_list_frame, height=15, width=30)
         self.list_box.pack(padx=10,pady=10)
         self.controller.get_dictionarys_list()
+        self.buttons_frame = tk.Frame(self.leftbar_filtering_and_list_frame,background='#242424')
+        self.buttons_frame.pack(expand=True)
+        self.show_details_button = tk.Button(self.buttons_frame,text='Show details')
+        self.show_details_button.grid(row=0,column=0)
+        self.update_button = tk.Button(self.buttons_frame,text='Update',command=self.fill_in_inputs)
+        self.update_button.grid(row=0,column=1)
+        self.remove_button = tk.Button(self.buttons_frame,text='Remove',command=self.controller.remove_from_db)
+        self.remove_button.grid(row=0,column=2)
+
+
+        # right side bar
+        self.input_form_frame = tk.Frame(self.rightbar_form_input_frame,background='#242424')
+        self.input_form_frame.pack(expand=True)
+        tk.Label(self.input_form_frame,text='First Name:',foreground="#ffffff",background='#242424').grid(row=0,column=0)
+        self.first_name = tk.StringVar()
+        self.first_name_entry = ttk.Entry(self.input_form_frame, textvariable=self.first_name, width=30)
+        self.first_name_entry.grid(row=0,column=1)
+        tk.Label(self.input_form_frame,text='Family Name:',foreground="#ffffff",background='#242424').grid(row=1,column=0)
+        self.family_name = tk.StringVar()
+        self.family_name_entry = ttk.Entry(self.input_form_frame, textvariable=self.family_name, width=30)
+        self.family_name_entry.grid(row=1,column=1)
+        tk.Label(self.input_form_frame,text='City:',foreground="#ffffff",background='#242424').grid(row=2,column=0)
+        self.city = tk.StringVar()
+        self.city_entry = ttk.Entry(self.input_form_frame, textvariable=self.city, width=30)
+        self.city_entry.grid(row=2,column=1)
+        tk.Label(self.input_form_frame,text='Road:',foreground="#ffffff",background='#242424').grid(row=3,column=0)
+        self.road = tk.StringVar()
+        self.road_entry = ttk.Entry(self.input_form_frame, textvariable=self.road, width=30)
+        self.road_entry.grid(row=3,column=1)
+        tk.Label(self.input_form_frame,text='No.:',foreground="#ffffff",background='#242424').grid(row=4,column=0)
+        self.number = tk.StringVar()
+        self.number_entry = ttk.Entry(self.input_form_frame, textvariable=self.number, width=30)
+        self.number_entry.grid(row=4,column=1)
+        self.number = tk.StringVar()
+        self.number_entry = ttk.Entry(self.input_form_frame, textvariable=self.number, width=30)
+        self.number_entry.grid(row=4,column=1)
+        tk.Label(self.input_form_frame,text='Rental ID:',foreground="#ffffff",background='#242424').grid(row=5,column=0)
+        self.rent_id = tk.StringVar()
+        self.rent_id_entry = ttk.Entry(self.input_form_frame, textvariable=self.rent_id, width=30)
+        self.rent_id_entry.grid(row=5,column=1)
+        self.message_label_location = tk.Label(self.input_form_frame,text='',foreground="#ffffff",background='#242424')
+        self.message_label_location.grid(row=6,column=0)
+        self.add_confirm_button = tk.Button(self.input_form_frame,text='Add',command=self.controller.add_to_db)
+        self.add_confirm_button.grid(row=7,column=0)
         
     
     def change_data_view(self,*args):
         choice = self.data_type_selected.get()
         for widget in self.leftbar_filtering_and_list_frame.winfo_children():
+            widget.destroy()
+        for widget in self.rightbar_form_input_frame.winfo_children():
             widget.destroy()
         if choice =="Headquarters":
             self.display_Headquarters_datatype_menu()
@@ -167,6 +292,8 @@ class View(ttk.Frame):
         self.data_type_selected.trace_add("write", self.change_data_view)
         self.leftbar_filtering_and_list_frame = tk.Frame(self.left_sidebar,background='#242424')
         self.leftbar_filtering_and_list_frame.pack(expand=True)
+        self.rightbar_form_input_frame = tk.Frame(self.right_sidebar,background='#242424')
+        self.rightbar_form_input_frame.pack(expand=True)
         self.display_Headquarters_datatype_menu()
         ttk.Label(
         self.main_area,
@@ -180,6 +307,78 @@ class View(ttk.Frame):
 
     def hide_message(self):
         self.message_label['text'] = ''
+        
+    def hide_message_location(self):
+        self.message_label_location['text'] = ''
+
+    def clean_inputs(self,datatype=None):
+        if datatype==None:
+            datatype = self.data_type_selected.get()
+        if datatype=='Headquarters':
+            self.name.set('')
+        if datatype=='Rental':
+            self.name.set('')
+            self.head_id.set('')
+        if datatype=='Employee':
+            self.first_name.set('')
+            self.family_name.set('')
+            self.rent_id.set('')
+        self.filtering_var.set('')
+        self.number_entry['foreground'] = 'black'
+        self.road_entry['foreground'] = 'black'
+        self.city_entry['foreground'] = 'black'
+        self.number.set('')
+        self.road.set('')
+        self.city.set('')
+    
+    def extract_active_from_list_bx(self):
+        i = self.list_box.index(tk.ACTIVE)
+        kay = self.list_box.get(i)
+        id = kay.split('#')[-1]
+        self.controller.get_filtred_dictionarys('id',int(id))
+        kay = self.controller.dict_res[1]
+        res = self.controller.dict_res[0]
+        res = res[kay[0]]
+        return res, kay
+    def fill_in_inputs(self,datatype=None):
+        res, kay = self.extract_active_from_list_bx()
+        if datatype==None:
+            datatype = self.data_type_selected.get()
+        if datatype=='Headquarters':
+
+            self.name.set(res[0])
+            self.city.set(res[1])
+            self.road.set(res[2])
+            self.number.set(res[3])            
+
+        if datatype=='Rental':
+
+            self.name.set(res[0])
+            self.city.set(res[1])
+            self.road.set(res[2])
+            self.number.set(res[3])    
+            self.head_id.set(res[7].split('#')[-1])
+        if datatype=='Employee':
+            self.first_name.set(res[0])
+            self.family_name.set(res[1])
+            self.city.set(res[2])
+            self.road.set(res[3])
+            self.number.set(res[4])
+            self.rent_id.set(res[8].split('#')[-1])
+        self.add_confirm_button.config(text='Confirm', command=self.controller.update_to_db)
+
+    
+    def show_error_location(self, message,datatype=None):
+        if datatype==None:
+            datatype = self.data_type_selected.get()
+        self.message_label_location['text'] = message
+        self.message_label_location['foreground'] = 'red'
+        self.message_label_location.after(3000,self.hide_message)
+        if datatype=='Rental':
+            self.head_id_entry['foreground'] = 'red'
+        self.number_entry['foreground'] = 'red'
+        self.road_entry['foreground'] = 'red'
+        self.city_entry['foreground'] = 'red'
     
 
 # TEST
@@ -270,8 +469,107 @@ class testControler:
                 data_dictionary = self.model_R4SDB.get_filtred_rental_list(filter,value)
             dict_keyes = list(data_dictionary.keys())
             self.dict_res = [data_dictionary, dict_keyes]
+    
+    def add_to_db(self):
+        data_type = self.view.data_type_selected.get()            
+        city = self.view.city.get()
+        road = self.view.road.get()
+        number = self.view.number.get()
+        if data_type=="Headquarters":
+            name = self.view.name.get()
+            try:
+                self.model_R4SDB.add_headquaters_list([name,city,road,number])
+                self.view.clean_inputs()
+            except ValueError as error:
+                self.view.show_error_location(error)
+        if data_type=="Rental":
+            name = self.view.name.get()
+            try:
+                Headquarters_id = int(self.view.head_id.get())
+            except:
+                self.view.show_error_location('Invalid ID Datatype')
+            try:
+                self.model_R4SDB.add_rental_list([name,city,road,number,Headquarters_id])
+                self.view.clean_inputs()
+            except ValueError as error:
+                self.view.show_error_location(error)
+        if data_type=="Employee":
+            first_name = self.view.first_name.get()
+            family_name = self.view.family_name.get()
+            name = self.view.name.get()
+            try:
+                rental_id = int(self.view.rent_id.get())
+            except:
+                self.view.show_error_location('Invalid ID Datatype')
+            try:
+                self.model_R4SDB.add_employee_list([first_name,family_name,city,road,number,rental_id])
+                self.view.clean_inputs()
+            except ValueError as error:
+                self.view.show_error_location(error)
+        self.get_dictionarys_list()
+
+    def update_to_db(self):
+        data_type = self.view.data_type_selected.get()
+        city = self.view.city.get()
+        road = self.view.road.get()
+        number = self.view.number.get()
+        kay = self.dict_res[1][0]
+        if data_type=="Headquarters":
+            name = self.view.name.get()
+            try:
+                self.model_R4SDB.update_headquater(kay,[name,city,road,number])
+                self.view.clean_inputs()
+            except ValueError as error:
+                self.view.show_error_location(error)
+        if data_type=="Rental":
+            name = self.view.name.get()
+            try:
+                Headquarters_id = int(self.view.head_id.get())
+            except:
+                self.view.show_error_location('Invalid ID Datatype')
+            try:
+                self.model_R4SDB.update_rental(kay,[name,city,road,number,Headquarters_id])
+                self.view.clean_inputs()
+            except ValueError as error:
+                self.view.show_error_location(error)
+        if data_type=="Employee":
+            first_name = self.view.first_name.get()
+            family_name = self.view.family_name.get()
+            name = self.view.name.get()
+            try:
+                rental_id = int(self.view.rent_id.get())
+            except:
+                self.view.show_error_location('Invalid ID Datatype')
+            try:
+                self.model_R4SDB.update_employee(kay,[first_name,family_name,city,road,number,rental_id])
+                self.view.clean_inputs()
+            except ValueError as error:
+                self.view.show_error_location(error)
+        self.view.add_confirm_button.config(text='Add',command=self.add_to_db)
+        self.get_dictionarys_list()
         
-        
+    def remove_from_db(self):
+        data_type = self.view.data_type_selected.get()
+        res, kay = self.view.extract_active_from_list_bx()
+        kay = self.dict_res[1][0]
+        id = int(kay.split('#')[-1])
+        if data_type=="Headquarters":
+                self.get_filtred_dictionarys('headqoters_id',id,'Rental')
+                if  len(self.dict_res[1]) >0:
+                    print('Są')
+                else:
+                    print('Nie ma')
+                    self.model_R4SDB.remove_headquater(kay)
+        if data_type=="Rental":
+                self.get_filtred_dictionarys('rental_id',id,'Employee')
+                if  len(self.dict_res[1]) >0:
+                    print('Są')
+                else:
+                    print('Nie ma')
+                    self.model_R4SDB.remove_rental(kay)
+        if data_type=="Employee":
+                self.model_R4SDB.update_employee(kay)
+        self.get_dictionarys_list()
 
 root = tk.Tk()
 view = View(root)

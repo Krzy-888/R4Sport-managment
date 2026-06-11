@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
 import tkintermapview
-
+import model
 
 
 class View(ttk.Frame):
@@ -16,9 +16,9 @@ class View(ttk.Frame):
         self.Header_Label.grid(column=0,row=0,rowspan=2)
         self.container = tk.Frame(parent)
         self.container.pack(fill='both',expand=True)
-        self.left_sidebar = tk.Frame(self.container,bg="#242424", width=250)
+        self.left_sidebar = tk.Frame(self.container,bg="#242424", width=200)
         self.left_sidebar.pack(side="left",fill="y")
-        self.right_sidebar = tk.Frame(self.container,bg="#242424", width=250)
+        self.right_sidebar = tk.Frame(self.container,bg="#242424", width=200)
         self.right_sidebar.pack(side="right",fill="y")
         self.toolbar = tk.Frame(self.container, bg="#606060", height=40)
         self.toolbar.pack(side='top', fill='x')
@@ -69,25 +69,112 @@ class View(ttk.Frame):
         self.email_entry['foreground'] = 'red'
         self.password_entry['foreground'] = 'red'
 
+    def display_Headquarters_datatype_menu(self):
+        ttk.Label(self.leftbar_filtering_and_list_frame,text='Filter:',foreground="#ffffff",background='#242424').pack()
+        # ttk.Label(self.leftbar_filtering_and_list_frame,text='Headquarters',foreground="#ffffff",background='#242424').pack()
+        self.filterin_frame = tk.Frame(self.leftbar_filtering_and_list_frame,background='#242424')
+        self.filterin_frame.pack(expand=True)
+        self.filtering_field = tk.StringVar(value='id')
+        self.filter_field_dropdown = tk.OptionMenu(
+            self.filterin_frame,
+            self.filtering_field,
+            "id",
+            "name",
+            "city")
+        self.filter_field_dropdown.config(bg="#ff0000", fg="#ffffff")
+        self.filter_field_dropdown.grid(row=0,column=0)
+        self.filtering_var = tk.StringVar()
+        self.filtering_entry = ttk.Entry(self.filterin_frame, textvariable=self.filtering_var, width=30)
+        self.filtering_entry.grid(row=0,column=1)
+        self.filtering_var.trace_add("write", lambda *args: self.controller.get_filtred_dictionarys_list())
+        self.list_box = tk.Listbox(self.leftbar_filtering_and_list_frame, height=15, width=30)
+        self.list_box.pack(padx=10,pady=10)
+        self.controller.get_dictionarys_list()
+        self.buttons_frame = tk.Frame(self.leftbar_filtering_and_list_frame,background='#242424')
+        self.buttons_frame.pack(expand=True)
+        self.show_details_button = tk.Button(self.buttons_frame,text='Show details')
+        self.show_details_button.grid(row=0,column=0)
+
+    def display_Rental_datatype_menu(self):
+        ttk.Label(self.leftbar_filtering_and_list_frame,text='Filter:',foreground="#ffffff",background='#242424').pack()
+        ttk.Label(self.leftbar_filtering_and_list_frame,text='Rental',foreground="#ffffff",background='#242424').pack()
+        self.filterin_frame = tk.Frame(self.leftbar_filtering_and_list_frame,background='#242424')
+        self.filterin_frame.pack(expand=True)
+        self.filtering_field = tk.StringVar(value='id')
+        self.filter_field_dropdown = tk.OptionMenu(
+            self.filterin_frame,
+            self.filtering_field,
+            "id",
+            "name",
+            "city")
+        self.filter_field_dropdown.config(bg="#ff0000", fg="#ffffff")
+        self.filter_field_dropdown.grid(row=0,column=0)
+        self.filtering_var = tk.StringVar()
+        self.filtering_entry = ttk.Entry(self.filterin_frame, textvariable=self.filtering_var, width=30)
+        self.filtering_entry.grid(row=0,column=1)
+        self.filtering_var.trace_add("write", lambda *args: self.controller.get_filtred_dictionarys_list())
+        self.list_box = tk.Listbox(self.leftbar_filtering_and_list_frame, height=15, width=30)
+        self.list_box.pack(padx=10,pady=10)
+        self.controller.get_dictionarys_list()
+    def display_Employee_datatype_menu(self):
+        ttk.Label(self.leftbar_filtering_and_list_frame,text='Filter:',foreground="#ffffff",background='#242424').pack()
+        ttk.Label(self.leftbar_filtering_and_list_frame,text='Employee',foreground="#ffffff",background='#242424').pack()
+        self.filterin_frame = tk.Frame(self.leftbar_filtering_and_list_frame,background='#242424')
+        self.filterin_frame.pack(expand=True)
+        self.filtering_field = tk.StringVar(value='id')
+        self.filter_field_dropdown = tk.OptionMenu(
+            self.filterin_frame,
+            self.filtering_field,
+            "id",
+            "name",
+            "city")
+        self.filter_field_dropdown.config(bg="#ff0000", fg="#ffffff")
+        self.filter_field_dropdown.grid(row=0,column=0)
+        self.filtering_var = tk.StringVar()
+        self.filtering_entry = ttk.Entry(self.filterin_frame, textvariable=self.filtering_var, width=30)
+        self.filtering_entry.grid(row=0,column=1)
+        self.filtering_var.trace_add("write", lambda *args: self.controller.get_filtred_dictionarys_list())
+        self.list_box = tk.Listbox(self.leftbar_filtering_and_list_frame, height=15, width=30)
+        self.list_box.pack(padx=10,pady=10)
+        self.controller.get_dictionarys_list()
+        
+    
+    def change_data_view(self,*args):
+        choice = self.data_type_selected.get()
+        for widget in self.leftbar_filtering_and_list_frame.winfo_children():
+            widget.destroy()
+        if choice =="Headquarters":
+            self.display_Headquarters_datatype_menu()
+        if choice =="Rental":
+            self.display_Rental_datatype_menu()
+        if choice =="Employee":
+            self.display_Employee_datatype_menu()
+    
     def show_dashboard(self,username):
         self.username = username
         self.Username_Labe = ttk.Label(self.header,text=f'User:\t{username}',foreground='#FFFFFF',background='#000000').grid(column=1,row=0)
         self.form.destroy()
+        self.data_type_selected = tk.StringVar(value='Headquarters')
+        self.leftbar_datatype_dropdown = tk.OptionMenu(
+            self.left_sidebar,
+            self.data_type_selected,
+            "Headquarters",
+            "Rental",
+            "Employee")
+        self.leftbar_datatype_dropdown.config(bg="#ff0000", fg="#ffffff")
+        self.leftbar_datatype_dropdown.pack(pady=5,padx=5)
         
+        self.data_type_selected.trace_add("write", self.change_data_view)
+        self.leftbar_filtering_and_list_frame = tk.Frame(self.left_sidebar,background='#242424')
+        self.leftbar_filtering_and_list_frame.pack(expand=True)
+        self.display_Headquarters_datatype_menu()
         ttk.Label(
         self.main_area,
         text="Witaj w aplikacji!",
         font=("Arial", 16)
         ).pack(expand=True)
 
-    def show_success(self, message,username):
-        self.message_label['text'] = message
-        self.message_label['foreground'] = 'green'
-        self.message_label.after(3000,self.hide_message)
-        self.email_entry['foreground'] = 'black'
-        self.password_entry['foreground'] = 'black'
-        self.email_var.set('')
-        self.password_var.set('')
+    def show_success(self, username):
         self.show_dashboard(username)
 
 
@@ -100,23 +187,95 @@ class View(ttk.Frame):
 # ABC@mail.com
 # ABC
 class testControler:
-    def __init__(self, view):
+    def __init__(self, view,model):
         self.view = view
+        self.model = model
     def login(self,login,password):
         # simpler control version
-        if  '@' in login:
-            print(login)
+        try:
+            model = self.model.user_model([login,password])
+            data = model.write_user_data()
+            username = f'{data[1]} {data[2]}'
+            self.model_R4SDB = self.model.R4SR4SDB_model()
+            self.view.show_success(username)
+        except ValueError as error:
+            self.view.show_error(error)
+
+    def populate_listbox(self,list_input):
+        try:
+            self.view.list_box.delete(0, 'end')
+        except:
+            pass
+        for idx,object_input in enumerate(list_input):
+            self.view.list_box.insert(idx,object_input)
+    
+    def get_dictionarys_list(self,data_type = None):
+        if data_type==None:
+            data_type = self.view.data_type_selected.get()
+        if data_type=="Employee":
+            data_dictionary = self.model_R4SDB.get_employee_list()
+        if data_type=="Headquarters":
+            data_dictionary = self.model_R4SDB.get_headquaters_list()
+        if data_type=="Rental":
+            data_dictionary = self.model_R4SDB.get_rental_list()
+        dict_keyes = list(data_dictionary.keys())
+        self.populate_listbox(dict_keyes)
+    
+    def get_filtred_dictionarys_list(self,filter=None,value=None,data_type = None):
+        if data_type==None:
+            data_type = self.view.data_type_selected.get()
+        if value==None:
+            value = self.view.filtering_var.get()
+        if filter==None:
+            filter = self.view.filtering_field.get()
+        if value == '':
+            self.get_dictionarys_list()
         else:
-            self.view.show_error('Error') 
-        if password == 'Admin1':
-            print(password)
-            self.view.show_success('Loged In',login)
+            if data_type=="Employee":
+                data_dictionary = self.model_R4SDB.get_filtred_employee_list(filter,value)
+            if data_type=="Headquarters":
+                data_dictionary = self.model_R4SDB.get_filtred_headquaters_list(filter,value)
+            if data_type=="Rental":
+                data_dictionary = self.model_R4SDB.get_filtred_rental_list(filter,value)
+            dict_keyes = list(data_dictionary.keys())
+            self.populate_listbox(dict_keyes)
+        
+    def get_dictionarys(self,data_type = None):
+        if data_type==None:
+            data_type = self.view.data_type_selected.get()
+        if data_type=="Employee":
+            data_dictionary = self.model_R4SDB.get_employee_list()
+        if data_type=="Headquarters":
+            data_dictionary = self.model_R4SDB.get_headquaters_list()
+        if data_type=="Rental":
+            data_dictionary = self.model_R4SDB.get_rental_list()
+        dict_keyes = list(data_dictionary.keys())
+        self.dict_res = [data_dictionary, dict_keyes]
+    
+    def get_filtred_dictionarys(self,filter=None,value=None,data_type = None):
+        if data_type==None:
+            data_type = self.view.data_type_selected.get()
+        if value==None:
+            value = self.view.filtering_var.get()
+        if filter==None:
+            filter = self.view.filtering_field.get()
+        if value == '':
+            self.get_dictionarys()
         else:
-            self.view.show_error('Error')
+            if data_type=="Employee":
+                data_dictionary = self.model_R4SDB.get_filtred_employee_list(filter,value)
+            if data_type=="Headquarters":
+                data_dictionary = self.model_R4SDB.get_filtred_headquaters_list(filter,value)
+            if data_type=="Rental":
+                data_dictionary = self.model_R4SDB.get_filtred_rental_list(filter,value)
+            dict_keyes = list(data_dictionary.keys())
+            self.dict_res = [data_dictionary, dict_keyes]
+        
+        
 
 root = tk.Tk()
 view = View(root)
-controller = testControler(view)
+controller = testControler(view,model)
 view.set_controler(controller)
 view.pack()
 root.mainloop()

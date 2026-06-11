@@ -126,7 +126,7 @@ class R4SR4SDB_model:
                                 MakePoint(?, ?, 4326),
                                 1
                                 ) AS distance_m;""",(headquarters[0],headquarters[1],r[5],r[6])).fetchone()[0]
-            self.rental_list[f'{r[1]} #{r[0]}'] = list(r[1:8])
+            self.rental_list[f'{r[1]} #{r[0]}'] = list(r[1:7])
             self.rental_list[f'{r[1]} #{r[0]}'].append(f'{headquarters[2]} #{r[7]}')
             self.rental_list[f'{r[1]} #{r[0]}'].append(round(distance/1000,2))
         return self.rental_list

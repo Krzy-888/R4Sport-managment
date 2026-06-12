@@ -1,3 +1,7 @@
+import tkinter as tk
+from tkinter import ttk
+import tkinter.font as tkFont
+import tkintermapview
 import sqlite3
 import regex as re
 from geopy.geocoders import Nominatim

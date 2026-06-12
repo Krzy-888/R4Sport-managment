@@ -167,22 +167,28 @@ class Controler:
             try:
                 self.model_R4SDB.update_headquater(kay,[name,city,road,number])
                 self.view.clean_inputs()
+                self.view.add_confirm_button.config(text='Add',command=self.add_to_db)
             except ValueError as error:
                 self.view.show_error_location(error)
         if data_type=="Rental":
             name = self.view.name.get()
+            print(kay,[name,city,road,number])
             try:
-
-                if self.get_filtred_dictionarys('headqoters_id',id,'Rental'):
-                    Headquarters_id = int(self.view.head_id.get())
+                Headquarters_id = self.view.head_id.get()
+                self.get_filtred_dictionarys('id',Headquarters_id,'Headquarters')
+                if self.dict_res[0]:
+                    print(kay,[name,city,road,number,Headquarters_id])
                 else:
                     self.view.show_error_location('Invalid headqoters id')
             except:
                 self.view.show_error_location('Invalid ID Datatype')
             try:
-                if self.get_filtred_dictionarys('headqoters_id',id,'Rental'):
+                Headquarters_id = self.view.head_id.get()
+                self.get_filtred_dictionarys('id',Headquarters_id,'Headquarters')
+                if self.dict_res[0]:
                     self.model_R4SDB.update_rental(kay,[name,city,road,number,Headquarters_id])
                     self.view.clean_inputs()
+                    self.view.add_confirm_button.config(text='Add',command=self.add_to_db)
                 else:
                     self.view.show_error_location('Invalid headqoters id')
             except ValueError as error:
@@ -192,15 +198,21 @@ class Controler:
             family_name = self.view.family_name.get()
             name = self.view.name.get()
             try:
-                rental_id = int(self.view.rent_id.get())
+                rental_id = self.view.rent_id.get()
             except:
                 self.view.show_error_location('Invalid ID Datatype')
             try:
-                self.model_R4SDB.update_employee(kay,[first_name,family_name,city,road,number,rental_id])
-                self.view.clean_inputs()
+                rental_id = self.view.rent_id.get()
+                self.get_filtred_dictionarys('id',rental_id,'Rental')
+                if self.dict_res[0]:
+                    self.model_R4SDB.update_employee(kay,[first_name,family_name,city,road,number,rental_id])
+                    self.view.clean_inputs()
+                    self.view.add_confirm_button.config(text='Add',command=self.add_to_db)
+                else:
+                    self.view.show_error_location('invalid Rental ID')
             except ValueError as error:
                 self.view.show_error_location(error)
-        self.view.add_confirm_button.config(text='Add',command=self.add_to_db)
+        
         self.get_dictionarys_list()
         
     def remove_from_db(self):
